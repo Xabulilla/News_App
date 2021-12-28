@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:news_app/main.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart';
+
 void main() async {
   runApp( const MyApp());
 }
@@ -30,7 +36,29 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _newspapers = <String>["Hola", "Que tal", "Hello", "World", "LOL"];
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  late Future _data;
+  Future<http.Response?> fetchAlbum() async {
+    //String res = await http.read(Uri.parse('https://www.diariandorra.ad/'));
+    //List<dynamic> body = jsonDecode(res.body);
+    //print(res);
+    final response = await http.Client().get(Uri.parse('https://www.diariandorra.ad/'));
+    if (response.statusCode == 200){
+      var document = parse(response.body);
+      print(document.getElementById("antetitulo-192753").innerHtml.toString());
+      //Iterator _divs = document.getElementsByClassName("padd-col c-w  w-100   ").iterator;
+      //print(_divs.current.toString());
 
+    } else {
+      throw Exception();
+    }
+    return null;
+  }
+  @override
+  void initState(){
+    super.initState();
+     _data = fetchAlbum();
+     print(_data);
+  }
   Widget _buildRow(String newTitle) {
     return Center(
       child: Card(
@@ -64,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   Widget _buildNews() {
     String _new = "";
-    return ListView.builder(
+    /*return ListView.builder(
         itemCount: _newspapers.length,
         padding: const EdgeInsets.all(16.0),
         itemBuilder:  (context, i) {
@@ -72,7 +100,20 @@ class _MyHomePageState extends State<MyHomePage> {
             _new = _newspapers[i];
           }
           return _buildRow(_new);
-        });
+        });*/
+    return FutureBuilder(
+      future: _data,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Text(snapshot.data.toString());
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+
+        // By default, show a loading spinner.
+        return const CircularProgressIndicator();
+      },
+    );
   }
   @override
   Widget build(BuildContext context) {
