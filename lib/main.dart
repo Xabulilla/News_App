@@ -38,13 +38,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   late Future _data;
   Future<http.Response?> fetchAlbum() async {
-    //String res = await http.read(Uri.parse('https://www.diariandorra.ad/'));
-    //List<dynamic> body = jsonDecode(res.body);
-    //print(res);
-    final response = await http.Client().get(Uri.parse('https://www.diariandorra.ad/'));
+    final response = await http.Client().get(Uri.parse('https://www.diariandorra.ad/'),headers: {
+      "Accept": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    });
+
     if (response.statusCode == 200){
       var document = parse(response.body);
-      print(document.getElementById("antetitulo-192753").innerHtml.toString());
+      //print(document.getElementById("antetitulo-192753").innerHtml.toString());
+      document.getElementsByClassName("ali-l").forEach((element) {print(element.innerHtml.toString());});
       //Iterator _divs = document.getElementsByClassName("padd-col c-w  w-100   ").iterator;
       //print(_divs.current.toString());
 
@@ -92,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   Widget _buildNews() {
     String _new = "";
-    /*return ListView.builder(
+    return ListView.builder(
         itemCount: _newspapers.length,
         padding: const EdgeInsets.all(16.0),
         itemBuilder:  (context, i) {
@@ -100,20 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _new = _newspapers[i];
           }
           return _buildRow(_new);
-        });*/
-    return FutureBuilder(
-      future: _data,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Text(snapshot.data.toString());
-        } else if (snapshot.hasError) {
-          return Text('${snapshot.error}');
-        }
-
-        // By default, show a loading spinner.
-        return const CircularProgressIndicator();
-      },
-    );
+        });
   }
   @override
   Widget build(BuildContext context) {
