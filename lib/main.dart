@@ -4,27 +4,31 @@ import 'package:http/http.dart' as http;
 import 'noticies.dart';
 
 void main() async {
-  runApp( const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key, }) : super(key: key);
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-        return MaterialApp(
-          title: 'Flutter Demo',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-          ),
-          home: const MyHomePage(title: "Notícies d'Andorra",),
-        );
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+      ),
+      home: const MyHomePage(
+        title: "Notícies d'Andorra",
+      ),
+    );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title }) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -33,23 +37,27 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _newspapers = <String>["Hola", "Que tal", "Hello", "World", "LOL"];
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  late Future _data;
+  late Future<List<Noticia>?> _news;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-     _data = fetchHTML(http.Client(),"DiariAndorra");
-     //print(_data);
+    _news = fetchHTML(http.Client(), "DiariAndorra");
+    //print(_data);
   }
-  Widget _buildRow(String newTitle) {
+
+  Widget _buildRow(Noticia newTitle) {
     return Center(
       child: Card(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-             ListTile(
+            ListTile(
               leading: Icon(Icons.article_outlined),
-              title: Text(newTitle, style: _biggerFont,),
+              title: Text(
+                newTitle.title,
+                style: _biggerFont,
+              ),
               subtitle: Text('NewsPaper'),
             ),
             Row(
@@ -72,18 +80,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
   Widget _buildNews() {
-    String _new = "";
-    return ListView.builder(
-        itemCount: _newspapers.length,
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder:  (context, i) {
-          if(i <= _newspapers.length){
-            _new = _newspapers[i];
+    Noticia _new = const Noticia(title: '');
+    return FutureBuilder(
+        future: _news,
+        builder: (context, AsyncSnapshot snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return ListView.builder(
+                itemCount: snapshot.data.length,
+                padding: const EdgeInsets.all(16.0),
+                itemBuilder: (context, i) {
+                  if (i <= snapshot.data.length) {
+                    _new = snapshot.data[i];
+                  }
+                  return _buildRow(_new);
+                });
           }
-          return _buildRow(_new);
         });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
