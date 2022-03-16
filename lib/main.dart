@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 newTitle.title,
                 style: _biggerFont,
               ),
-              subtitle: Text('NewsPaper'),
+              subtitle: newTitle.image != "" ? Image.network(newTitle.image) : Text("No image"),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

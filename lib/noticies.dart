@@ -60,17 +60,17 @@ List<Noticia>? refactorHTML(Response response, String newspaper){
       for (var element in noticies) {
 
         var titleElement = element.querySelector("h2[id^='titulo-']");
-        var title = titleElement?.text;
+        var title = titleElement?.text.trim();
         var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
         var image = imageElement?.outerHtml.split(" ")[1].substring(5, imageElement.outerHtml.split(" ")[1].length - 1);
 
         Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper);
         diariAndorraNew.add(n);
 
-        /*print("---------------Title----------------");
-        print(title_element?.text);
+        print("---------------Title----------------");
+        print(titleElement?.text);
         print("---------------Image----------------");
-        print(image_element?.outerHtml.split(" ")[1].substring(5, image_element.outerHtml.split(" ")[1].length - 1));*/
+        print(imageElement?.outerHtml.split(" ")[1].substring(5, imageElement.outerHtml.split(" ")[1].length - 1));
       }
       return diariAndorraNew;
     }
