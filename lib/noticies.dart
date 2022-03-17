@@ -23,15 +23,15 @@ Future<List<Noticia>?> fetchHTML(http.Client client, String newspaper) async {
 
   switch (newspaper){
     case "DiariAndorra":{
-      url = 'https://www.diariandorra.ad/';
+      url = 'https://www.diariandorra.ad';
     }
     break;
     case "BonDia":{
-      url = 'https://www.bondia.ad/';
+      url = 'https://www.bondia.ad';
     }
     break;
     case "PeriodicAndorra":{
-      url = 'https://www.elperiodic.ad/';
+      url = 'https://www.elperiodic.ad';
     }
     break;
     default:{
@@ -43,10 +43,10 @@ Future<List<Noticia>?> fetchHTML(http.Client client, String newspaper) async {
     "Accept": "application/json",
     "Access-Control-Allow-Origin": "*"
   });
-  return refactorHTML(response, newspaper);
+  return refactorHTML(response, newspaper, url);
 }
 
-List<Noticia>? refactorHTML(Response response, String newspaper){
+List<Noticia>? refactorHTML(Response response, String newspaper, String url){
   var document = parse(response.body);
   List<Noticia> diariAndorraNew = [];
   switch (newspaper){
@@ -61,16 +61,30 @@ List<Noticia>? refactorHTML(Response response, String newspaper){
 
         var titleElement = element.querySelector("h2[id^='titulo-']");
         var title = titleElement?.text.trim();
-        var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
-        var image = imageElement?.outerHtml.split(" ")[1].substring(5, imageElement.outerHtml.split(" ")[1].length - 1);
-
-        Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper);
-        diariAndorraNew.add(n);
-
         print("---------------Title----------------");
         print(titleElement?.text);
+
+        var linkElement = element.querySelector("h2[id^='titulo-']")?.querySelector("a[href^='/']");
+        var link = linkElement?.outerHtml.split('"')[1];
+        print("---------------Link----------------");
+        print(link);
+        if(link != null ) {
+          link = url + link;
+        } else {
+          link = url;
+        }
+        print(link);
+
+        var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
+        var image = imageElement?.outerHtml.split('"')[1];
         print("---------------Image----------------");
-        print(imageElement?.outerHtml.split(" ")[1].substring(5, imageElement.outerHtml.split(" ")[1].length - 1));
+        print(imageElement?.outerHtml.split('"')[1]);
+
+
+        Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
+        diariAndorraNew.add(n);
+
+
       }
       return diariAndorraNew;
     }

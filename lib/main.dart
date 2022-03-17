@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:url_launcher/url_launcher.dart';
 import 'noticies.dart';
 
 void main() async {
@@ -45,7 +45,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _news = fetchHTML(http.Client(), "DiariAndorra");
     //print(_data);
   }
-
+  _launchURLBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
   Widget _buildRow(Noticia newTitle) {
     return Center(
       child: Card(
@@ -65,7 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 TextButton(
                   child: const Text('SHOW MORE'),
-                  onPressed: () {}, //de moment no fa res el botó
+                  onPressed: () {
+                    _launchURLBrowser(newTitle.link);
+                  }, //de moment no fa res el botó
                 ),
                 const SizedBox(width: 8),
                 TextButton(
