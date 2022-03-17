@@ -35,7 +35,42 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _newspapers = <String>["Hola", "Que tal", "Hello", "World", "LOL"];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: GridView.count(
+        crossAxisCount: 2,
+        children: List.generate(4, (index) {
+          return Center(
+            child: IconButton(
+              icon: index == 0 ? Image.asset('assets/images/diari_andorra_logo.png') : Icon(Icons.newspaper),
+              iconSize: index == 0 ? 500 : 50,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const DiariAndorra()));
+              },
+            ),
+          );
+        }),
+      ), //_buildNews(),
+    );
+  }
+}
+
+class DiariAndorra extends StatefulWidget{
+  const DiariAndorra({Key? key, }) : super(key: key);
+  @override
+  State<DiariAndorra> createState() => _DiariAndorraState();
+}
+class _DiariAndorraState extends State<DiariAndorra> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   late Future<List<Noticia>?> _news;
 
@@ -43,8 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _news = fetchHTML(http.Client(), "DiariAndorra");
-    //print(_data);
   }
+
   _launchURLBrowser(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -52,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
       throw 'Could not launch $url';
     }
   }
+
   Widget _buildRow(Noticia newTitle) {
     return Center(
       child: Card(
@@ -64,7 +100,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 newTitle.title,
                 style: _biggerFont,
               ),
-              subtitle: newTitle.image != "" ? Image.network(newTitle.image) : Text("No image"),
+              subtitle: newTitle.image != ""
+                  ? Image.network(newTitle.image)
+                  : const Text(""),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -95,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
         future: _news,
         builder: (context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else {
             return ListView.builder(
                 itemCount: snapshot.data.length,
@@ -114,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("Diari Andorra"),
       ),
       body: _buildNews(),
     );

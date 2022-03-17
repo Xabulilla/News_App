@@ -106,8 +106,3 @@ List<Noticia>? refactorHTML(Response response, String newspaper, String url){
     break;
   }
 }
-
-/*List<Noticia>? newsDiariAndorra(Noticia n)  {
-
-  return null;
-}*/
