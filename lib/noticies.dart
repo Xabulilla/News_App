@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
@@ -18,9 +21,8 @@ class Noticia {
 
 }
 
-Future<List<Noticia>?> fetchHTML(http.Client client, String newspaper) async {
+Future<List<Noticia>> fetchHTML(http.Client client, String newspaper) async {
   var url = "";
-
   switch (newspaper){
     case "DiariAndorra":{
       url = 'https://www.diariandorra.ad';
@@ -39,14 +41,15 @@ Future<List<Noticia>?> fetchHTML(http.Client client, String newspaper) async {
     }
     break;
   }
-  Response response = await client.get(Uri.parse(url),headers: {
+
+  List<Noticia> _news = refactorHTML(await http.get(Uri.parse(url),headers: { /*Deixar-ho així, NO crear una variable per response*/
     "Accept": "application/json",
     "Access-Control-Allow-Origin": "*"
-  });
-  return refactorHTML(response, newspaper, url);
+  }), newspaper, url);
+  return _news;
 }
 
-List<Noticia>? refactorHTML(Response response, String newspaper, String url){
+List<Noticia> refactorHTML(Response response, String newspaper, String url){
   var document = parse(response.body);
   List<Noticia> diariAndorraNew = [];
   switch (newspaper){
@@ -86,22 +89,23 @@ List<Noticia>? refactorHTML(Response response, String newspaper, String url){
 
 
       }
+      print("Notícies" + diariAndorraNew.length.toString());
       return diariAndorraNew;
     }
     break;
     case "BonDia":{
       //url = 'https://www.bondia.ad/';
-      return null;
+      return List<Noticia>.empty();
     }
     break;
     case "PeriodicAndorra":{
       //url = 'https://www.elperiodic.ad/';
-      return null;
+      return List<Noticia>.empty();
     }
     break;
     default:{
       //url = "";
-      return null;
+      return List<Noticia>.empty();
     }
     break;
   }

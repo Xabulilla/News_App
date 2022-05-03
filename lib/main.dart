@@ -35,7 +35,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   void initState() {
     super.initState();
@@ -52,10 +51,15 @@ class _MyHomePageState extends State<MyHomePage> {
         children: List.generate(4, (index) {
           return Center(
             child: IconButton(
-              icon: index == 0 ? Image.asset('assets/images/diari_andorra_logo.png') : Icon(Icons.newspaper),
+              icon: index == 0
+                  ? Image.asset('assets/images/diari_andorra_logo.png')
+                  : Icon(Icons.newspaper),
               iconSize: index == 0 ? 500 : 50,
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const DiariAndorra()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DiariAndorra()));
               },
             ),
           );
@@ -65,17 +69,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class DiariAndorra extends StatefulWidget{
-  const DiariAndorra({Key? key, }) : super(key: key);
+class DiariAndorra extends StatefulWidget {
+  const DiariAndorra({
+    Key? key,
+  }) : super(key: key);
   @override
   State<DiariAndorra> createState() => _DiariAndorraState();
 }
+
 class _DiariAndorraState extends State<DiariAndorra> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  late Future<List<Noticia>?> _news;
+  late Future<List<Noticia>> _news ;
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
     _news = fetchHTML(http.Client(), "DiariAndorra");
   }
@@ -129,23 +136,34 @@ class _DiariAndorraState extends State<DiariAndorra> {
 
   Widget _buildNews() {
     Noticia _new = const Noticia(title: '');
-    return FutureBuilder(
-        future: _news,
-        builder: (context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                padding: const EdgeInsets.all(16.0),
-                itemBuilder: (context, i) {
-                  if (i <= snapshot.data.length) {
-                    _new = snapshot.data[i];
-                  }
-                  return _buildRow(_new);
-                });
-          }
-        });
+    return Center(
+      child: FutureBuilder(
+          future: _news,
+          builder: (BuildContext context, AsyncSnapshot<List<Noticia>> snapshot) {
+            print(snapshot);
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (!snapshot.hasData) {
+                return const Center(child: Text('Done and no data'));
+              } else {
+                return ListView.builder(
+                    itemCount: snapshot.data?.length,
+                    padding: const EdgeInsets.all(16.0),
+                    itemBuilder: (context, i) {
+                      if (i <= snapshot.data.toString().length) {
+                        _new = snapshot.data![i];
+                      }
+                      return _buildRow(_new);
+                    });
+              }
+            } else if (snapshot.connectionState == ConnectionState.none) {
+              return Text('Error'); // error
+            } else if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData){
+              return CircularProgressIndicator(); // loading
+            } else {
+              return Text('Else');
+            }
+          }),
+    );
   }
 
   @override
