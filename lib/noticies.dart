@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -52,12 +53,9 @@ Future<List<Noticia>> fetchHTML(http.Client client, String newspaper) async {
 List<Noticia> refactorHTML(Response response, String newspaper, String url){
   var document = parse(response.body);
   List<Noticia> diariAndorraNew = [];
+  List<Noticia> bonDiaNew = [];
   switch (newspaper){
     case "DiariAndorra":{
-      /*var titles = document.querySelectorAll("h2[id^='titulo-']");
-      print(titles.length);
-      titles.forEach((element) {print(element.text);});*/
-
       //Mirar si dema el helisa-dnd-378 es el mateix, aixi agafem nomes les noticies mes importants
       var importants = document.querySelectorAll("div[id^='helisa-dnd-378']");
       for (var noticia in importants){
@@ -99,8 +97,22 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
     }
     break;
     case "BonDia":{
-      //url = 'https://www.bondia.ad/';
-      return List<Noticia>.empty();
+
+      //----------------Titular BonDia -------------------"
+      AddTitular(document, url, newspaper, bonDiaNew);
+
+      //----------------Altres noticies BonDia -------------------"
+      var importants = document.querySelectorAll("div[class^='views-row views-row']");
+      for (var i in importants){
+        var articles = i.querySelectorAll("article[id^='node-921']");
+        for (var a in articles){
+          var titles = a.querySelectorAll("h2[class^='title']");
+          titles.forEach((element) {print(element.text);});
+        }
+      }
+      //Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
+      //bonDiaNew.add(n);
+      return bonDiaNew;
     }
     break;
     case "PeriodicAndorra":{
@@ -114,4 +126,21 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
     }
     break;
   }
+}
+
+void AddTitular(Document document, String url, String newspaper, List<Noticia> bonDiaNew) {
+   var titular = document.querySelectorAll("div[class^='views-field views-field-title']").first;
+  var title = titular.text.trim();
+  var linkElement = titular.querySelector("a[href^='/']");
+  var link = linkElement?.outerHtml.split('"')[1];
+
+  print(link);
+  if(link != null ) {
+    link = url + link;
+  } else {
+    link = url;
+  }
+  print(link);
+  Noticia n = Noticia(title: title ?? "", image: "", newspaper: newspaper, link: link );
+  bonDiaNew.add(n);
 }

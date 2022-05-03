@@ -1,49 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 import 'noticies.dart';
 
-void main() async {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({
+class DiariAndorra extends StatefulWidget {
+  const DiariAndorra({
     Key? key,
   }) : super(key: key);
-
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Notícies d'Andorra",
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-      ),
-      home: const MyHomePage(
-        title: "Notícies d'Andorra",
-      ),
-    );
-  }
+  State<DiariAndorra> createState() => _DiariAndorraState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _DiariAndorraState extends State<DiariAndorra> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  late Future<List<Noticia>> _news;
-  late Future<List<Noticia>> _test;
+  late Future<List<Noticia>> _news ;
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
     _news = fetchHTML(http.Client(), "DiariAndorra");
-    _test = fetchHTML(http.Client(), "BonDia");
   }
 
   _launchURLBrowser(String url) async {
@@ -61,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
+              leading: Icon(Icons.article_outlined),
               title: Text(
                 newTitle.title,
                 style: _biggerFont,
@@ -70,14 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   : const Text(""),
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                const SizedBox(width: 16),
-                Image.asset(
-                'assets/images/diari_andorra_logo.png',
-                scale: 5,
-              ), //de moment no fa res el botó
-                //const SizedBox(width: 8),
-                const Spacer(),
                 TextButton(
                   child: const Text('SHOW MORE'),
                   onPressed: () {
@@ -103,8 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Center(
       child: FutureBuilder(
           future: _news,
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Noticia>> snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<List<Noticia>> snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (!snapshot.hasData) {
                 return const Center(child: Text('Done and no data'));
@@ -121,8 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
             } else if (snapshot.connectionState == ConnectionState.none) {
               return Text('Error'); // error
-            } else if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
+            } else if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData){
               return CircularProgressIndicator(); // loading
             } else {
               return Text('Else');
@@ -134,29 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body:
-            _buildNews() /*GridView.count(
-        crossAxisCount: 2,
-        children: List.generate(4, (index) {
-          return Center(
-            child: IconButton(
-              icon: index == 0
-                  ? Image.asset('assets/images/diari_andorra_logo.png')
-                  : Icon(Icons.newspaper),
-              iconSize: index == 0 ? 500 : 50,
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DiariAndorra()));
-              },
-            ),
-          );
-        }),
-      ),*/ //_buildNews(),
-        );
+      appBar: AppBar(
+        title: const Text("Diari Andorra"),
+      ),
+      body: _buildNews(),
+    );
   }
 }
