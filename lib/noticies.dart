@@ -59,37 +59,42 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
       titles.forEach((element) {print(element.text);});*/
 
       //Mirar si dema el helisa-dnd-378 es el mateix, aixi agafem nomes les noticies mes importants
-      var noticies = document.querySelectorAll("div[id^='Noticia-']");
-      for (var element in noticies) {
+      var importants = document.querySelectorAll("div[id^='helisa-dnd-378']");
+      for (var noticia in importants){
+        var noticies = noticia.querySelectorAll("div[id^='Noticia-']");
+        for (var element in noticies) {
 
-        var titleElement = element.querySelector("h2[id^='titulo-']");
-        var title = titleElement?.text.trim();
-        print("---------------Title----------------");
-        print(titleElement?.text);
+          var titleElement = element.querySelector("h2[id^='titulo-']");
+          var title = titleElement?.text.trim();
+          print("---------------Title----------------");
+          print(titleElement?.text);
 
-        var linkElement = element.querySelector("h2[id^='titulo-']")?.querySelector("a[href^='/']");
-        var link = linkElement?.outerHtml.split('"')[1];
-        print("---------------Link----------------");
-        print(link);
-        if(link != null ) {
-          link = url + link;
-        } else {
-          link = url;
+          var linkElement = element.querySelector("h2[id^='titulo-']")?.querySelector("a[href^='/']");
+          var link = linkElement?.outerHtml.split('"')[1];
+          print("---------------Link----------------");
+          print(link);
+          if(link != null ) {
+            link = url + link;
+          } else {
+            link = url;
+          }
+          print(link);
+
+          var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
+          var image = imageElement?.outerHtml.split('"')[1];
+          print("---------------Image----------------");
+          print(imageElement?.outerHtml.split('"')[1]);
+
+
+          Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
+          diariAndorraNew.add(n);
+
+
         }
-        print(link);
-
-        var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
-        var image = imageElement?.outerHtml.split('"')[1];
-        print("---------------Image----------------");
-        print(imageElement?.outerHtml.split('"')[1]);
-
-
-        Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
-        diariAndorraNew.add(n);
-
-
       }
-      print("Notícies" + diariAndorraNew.length.toString());
+
+
+      print("Notícies" + " " + diariAndorraNew.length.toString());
       return diariAndorraNew;
     }
     break;

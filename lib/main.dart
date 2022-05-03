@@ -140,7 +140,6 @@ class _DiariAndorraState extends State<DiariAndorra> {
       child: FutureBuilder(
           future: _news,
           builder: (BuildContext context, AsyncSnapshot<List<Noticia>> snapshot) {
-            print(snapshot);
             if (snapshot.connectionState == ConnectionState.done) {
               if (!snapshot.hasData) {
                 return const Center(child: Text('Done and no data'));
