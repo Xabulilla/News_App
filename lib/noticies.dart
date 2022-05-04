@@ -22,31 +22,35 @@ class Noticia {
 
 }
 
-Future<List<Noticia>> fetchHTML(http.Client client, String newspaper) async {
+Future<List<Noticia>> fetchHTML(http.Client client) async {
   var url = "";
-  switch (newspaper){
-    case "DiariAndorra":{
-      url = 'https://www.diariandorra.ad';
-    }
-    break;
-    case "BonDia":{
-      url = 'https://www.bondia.ad';
-    }
-    break;
-    case "PeriodicAndorra":{
-      url = 'https://www.elperiodic.ad';
-    }
-    break;
-    default:{
-      url = "";
-    }
-    break;
-  }
+  late List<Noticia> _newsDiariAndorra;
+  late List<Noticia> _newsBonDia;
+  late List<Noticia> _news;
 
-  List<Noticia> _news = refactorHTML(await http.get(Uri.parse(url),headers: { /*Deixar-ho així, NO crear una variable per response*/
+
+      url = 'https://www.diariandorra.ad';
+      _newsDiariAndorra = refactorHTML(await http.get(Uri.parse(url),headers: { /*Deixar-ho així, NO crear una variable per response*/
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      }), "DiariAndorra", url);
+
+      url = 'https://www.bondia.ad';
+      _newsBonDia = refactorHTML(await http.get(Uri.parse(url),headers: { /*Deixar-ho així, NO crear una variable per response*/
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      }), "BonDia", url);
+
+      url = 'https://www.elperiodic.ad';
+
+
+
+  /*List<Noticia> _news = refactorHTML(await http.get(Uri.parse(url),headers: { /*Deixar-ho així, NO crear una variable per response*/
     "Accept": "application/json",
     "Access-Control-Allow-Origin": "*"
-  }), newspaper, url);
+  }), newspaper, url);*/
+  _news = _newsDiariAndorra + _newsBonDia;
+  _news.shuffle();
   return _news;
 }
 
@@ -56,7 +60,6 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
   List<Noticia> bonDiaNew = [];
   switch (newspaper){
     case "DiariAndorra":{
-      //Mirar si dema el helisa-dnd-378 es el mateix, aixi agafem nomes les noticies mes importants
       var importants = document.querySelectorAll("div[id^='helisa-dnd-378']");
       for (var noticia in importants){
         var noticies = noticia.querySelectorAll("div[id^='Noticia-']");
@@ -64,24 +67,25 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
 
           var titleElement = element.querySelector("h2[id^='titulo-']");
           var title = titleElement?.text.trim();
-          print("---------------Title----------------");
-          print(titleElement?.text);
+
+          //print("---------------Title----------------");
+          //print(titleElement?.text);
 
           var linkElement = element.querySelector("h2[id^='titulo-']")?.querySelector("a[href^='/']");
           var link = linkElement?.outerHtml.split('"')[1];
-          print("---------------Link----------------");
-          print(link);
+          //print("---------------Link----------------");
+          //print(link);
           if(link != null ) {
             link = url + link;
           } else {
             link = url;
           }
-          print(link);
+          //print(link);
 
           var imageElement = element.querySelector("div[class^='img-l-3col  ']")?.querySelector("img[src^='https']");
           var image = imageElement?.outerHtml.split('"')[1];
-          print("---------------Image----------------");
-          print(imageElement?.outerHtml.split('"')[1]);
+          //print("---------------Image----------------");
+          //print(imageElement?.outerHtml.split('"')[1]);
 
 
           Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
@@ -106,12 +110,27 @@ List<Noticia> refactorHTML(Response response, String newspaper, String url){
       for (var i in importants){
         var articles = i.querySelectorAll("article[id^='node-921']");
         for (var a in articles){
-          var titles = a.querySelectorAll("h2[class^='title']");
-          titles.forEach((element) {print(element.text);});
+          var titleElement = a.querySelector("h2[class^='title']");
+          var title = titleElement?.text.trim();
+          //print(title);
+          
+          var imageElement = a.querySelector("div[class^='field-image']")?.querySelector("img[src^='https']");
+          var image = imageElement?.outerHtml.split('src=')[1].split('"')[1];
+          //print(image);
+
+          var linkElement = a.querySelector("h2[class^='title']")?.querySelector("a[href^='/']");
+          var link = linkElement?.outerHtml.split('"')[1];
+          if(link != null ) {
+            link = url + link;
+          } else {
+            link = url;
+          }
+          //print(link);
+          Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
+          bonDiaNew.add(n);
         }
       }
-      //Noticia n = Noticia(title: title ?? "", image: image ?? "", newspaper: newspaper, link: link );
-      //bonDiaNew.add(n);
+      print("Notícies" + " " + bonDiaNew.length.toString());
       return bonDiaNew;
     }
     break;
@@ -134,13 +153,13 @@ void AddTitular(Document document, String url, String newspaper, List<Noticia> b
   var linkElement = titular.querySelector("a[href^='/']");
   var link = linkElement?.outerHtml.split('"')[1];
 
-  print(link);
+  //print(link);
   if(link != null ) {
     link = url + link;
   } else {
     link = url;
   }
-  print(link);
+  //print(link);
   Noticia n = Noticia(title: title ?? "", image: "", newspaper: newspaper, link: link );
   bonDiaNew.add(n);
 }

@@ -36,14 +36,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  late Future<List<Noticia>> _diariAndorraNews;
+  late Future<List<Noticia>> _bonDiaNews;
   late Future<List<Noticia>> _news;
-  late Future<List<Noticia>> _test;
 
   @override
   void initState() {
     super.initState();
-    _news = fetchHTML(http.Client(), "DiariAndorra");
-    _test = fetchHTML(http.Client(), "BonDia");
+    _news = fetchHTML(http.Client());
   }
 
   _launchURLBrowser(String url) async {
@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Widget _buildRow(Noticia newTitle) {
+  Widget _buildRow(Noticia newElement) {
     return Center(
       child: Card(
         child: Column(
@@ -62,26 +62,29 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             ListTile(
               title: Text(
-                newTitle.title,
+                newElement.title,
                 style: _biggerFont,
               ),
-              subtitle: newTitle.image != ""
-                  ? Image.network(newTitle.image)
+              subtitle: newElement.image != ""
+                  ? Image.network(newElement.image)
                   : const Text(""),
             ),
             Row(
               children: <Widget>[
                 const SizedBox(width: 16),
-                Image.asset(
+                if(newElement.newspaper == "DiariAndorra")  Image.asset(
                 'assets/images/diari_andorra_logo.png',
                 scale: 5,
-              ), //de moment no fa res el botó
+              ) else if(newElement.newspaper == "BonDia")Image.asset(
+                  'assets/images/bon_dia_logo.png',
+                  scale: 7,
+                ), //de moment no fa res el botó
                 //const SizedBox(width: 8),
                 const Spacer(),
                 TextButton(
                   child: const Text('SHOW MORE'),
                   onPressed: () {
-                    _launchURLBrowser(newTitle.link);
+                    _launchURLBrowser(newElement.link);
                   }, //de moment no fa res el botó
                 ),
                 const SizedBox(width: 8),
@@ -104,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: FutureBuilder(
           future: _news,
           builder:
-              (BuildContext context, AsyncSnapshot<List<Noticia>> snapshot) {
+              (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (!snapshot.hasData) {
                 return const Center(child: Text('Done and no data'));
